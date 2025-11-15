@@ -1,26 +1,44 @@
 package com.fin.user.Entity;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import org.antlr.v4.runtime.misc.NotNull;
 import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 @Table(name = "USER")
 public class User{
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     UUID id;
-    String name;
+
+    @NotBlank(message = "Username is mandatory")
+    @Column(unique = true, nullable = false, length = 50)
+    String userName;
+
+    @NotBlank(message = "Email is mandatory")
+    @Email
+    @Column(unique = true, nullable = false, length = 20)
     String email;
+
+    @NotBlank
     String password;
+
+    @Builder.Default
+    boolean isActive = false;
+
+    @Builder.Default
+    boolean isEmailVerified = false;
 
 }
