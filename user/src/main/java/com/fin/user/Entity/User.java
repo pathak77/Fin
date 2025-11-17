@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.antlr.v4.runtime.misc.NotNull;
 import java.util.UUID;
 
 @Entity
@@ -16,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Builder
-@Table(name = "USER")
+@Table(name = "user_info")
 public class User{
 
     @Id
@@ -25,7 +24,7 @@ public class User{
 
     @NotBlank(message = "Username is mandatory")
     @Column(unique = true, nullable = false, length = 50)
-    String userName;
+    String username;
 
     @NotBlank(message = "Email is mandatory")
     @Email
