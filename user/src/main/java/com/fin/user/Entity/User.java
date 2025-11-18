@@ -20,7 +20,7 @@ public class User{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    UUID id;
+    UUID userId;
 
     @NotBlank(message = "Username is mandatory")
     @Column(unique = true, nullable = false, length = 50)
