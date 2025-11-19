@@ -1,8 +1,6 @@
 package com.fin.user.Service;
 
 import com.fin.user.Dto.UserDto;
-import com.fin.user.Entity.User;
-
 import java.util.List;
 
 public interface UserService<T> {
