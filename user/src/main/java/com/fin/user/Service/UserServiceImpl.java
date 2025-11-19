@@ -1,11 +1,12 @@
 package com.fin.user.Service;
 
 import com.fin.user.Dto.UserDto;
+import com.fin.user.Entity.User;
 import com.fin.user.UserRepository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.net.http.HttpResponse;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -18,27 +19,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public HttpResponse<String> addUser(UserDto userDto) {
+    public String addUser(UserDto userDto) {
         return null;
     }
 
     @Override
-    public HttpResponse<String> updateUser(UserDto userDto) {
+    public String updateUser(UserDto userDto) {
         return null;
     }
 
     @Override
-    public HttpResponse<String> deleteUser(UserDto userDto) {
+    public String deleteUser(UserDto userDto) {
         return null;
     }
 
     @Override
-    public HttpResponse<String> getAllUsers() {
+    public List<User> getAllUsers() {
         return null;
     }
 
     @Override
-    public HttpResponse<String> getUserByUsername(String username) {
+    public User getUserByUsername(String username) {
         return null;
     }
 }
