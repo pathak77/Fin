@@ -2,8 +2,12 @@ package com.fin.user.Service;
 
 import com.fin.user.Dto.UserDto;
 import com.fin.user.Entity.User;
+import com.fin.user.GlobalExceptions.EmailExistsException;
+import com.fin.user.GlobalExceptions.UserAlreadyExistException;
+import com.fin.user.GlobalExceptions.UserDoesnotExist;
 import com.fin.user.Mapper.UserMapper;
 import com.fin.user.UserRepository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,11 +27,15 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    @Transactional
     public String addUser(UserDto userDto) {
         User existingUser = userRepository.findByUsername(userDto.getUsername());
 
-        if (existingUser != null) {
-            return "User already exists" ;
+        if (existingUser.getUsername() != null) {
+            throw new UserAlreadyExistException("User with username" + existingUser.getUsername() + "already exists");
+        }
+        else if(userDto.getEmail() != null) {
+            throw new EmailExistsException("User with email" + existingUser.getEmail() + "already exists");
         }
 
         User addedUser = userMapper.mapToUser(userDto);
@@ -36,11 +44,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public String updateUser(UserDto userDto) {
         User existingUser = userRepository.findByUsername(userDto.getUsername());
 
         if (existingUser == null) {
-            return "User does not exist" ;
+            throw new UserDoesnotExist("User with username" + userDto.getUsername() + "does not exist");
         }
 
         User updatedUser = userMapper.mapToUser(userDto);
@@ -49,22 +58,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public String deleteUser(UserDto userDto) {
         User existingUser = userRepository.findByUsername(userDto.getUsername());
 
         if (existingUser == null) {
-            return "User does not exist" ;
+            throw new UserDoesnotExist("User with username" + userDto.getUsername() + "does not exist");
         }
         userRepository.delete(existingUser);
         return "User " + existingUser.getUsername() + "deleted successfully";
     }
 
     @Override
+    @Transactional
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
+    @Transactional
     public UserDto getUserByUsername(String username) {
         User searchedUser = userRepository.findByUsername(username);
         if( searchedUser == null) {

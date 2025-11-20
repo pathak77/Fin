@@ -1,23 +1,26 @@
-//package com.fin.user.GlobalExceptions;
-//
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.ControllerAdvice;
-//import org.springframework.web.bind.annotation.ExceptionHandler;
-//import org.springframework.web.context.request.WebRequest;
-//
-//import java.nio.file.attribute.UserPrincipalNotFoundException;
-//
-//@ControllerAdvice
-//public class UserExceptions{
-//
-//    @ExceptionHandler(UserPrincipalNotFoundException.class)
-//    public ResponseEntity<ErrorDetails> handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
-//        ErrorDetails errorDetails = new ErrorDetails(
-//                System.currentTimeMillis(),
-//                ex.getMessage(),
-//                request.getDescription(false)
-//        );
-//        return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
-//    }
-//}
+package com.fin.user.GlobalExceptions;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@ControllerAdvice
+public class UserExceptions{
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExecption(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getAllErrors().forEach((error) ->
+                errors.put(error.getDefaultMessage(), error.getDefaultMessage()));
+
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+
+}

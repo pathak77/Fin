@@ -13,17 +13,17 @@ public class UserMapper {
 
     public UserDto mapToUserDto(User user) {
         return UserDto.builder()
-                .userId(user.getUserId())
                 .email(user.getEmail())
                 .username((user.getUsername() == null) ?"":user.getUsername())
+                .password(user.getPassword())
                 .build();
     }
 
     public User mapToUser(UserDto userDto) {
         return User.builder()
-                .userId(userDto.getUserId())
                 .email(userDto.getEmail())
                 .username(userDto.getUsername())
+                .password(userDto.getPassword())
                 .build();
     }
 

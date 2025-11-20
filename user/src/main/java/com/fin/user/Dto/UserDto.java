@@ -18,5 +18,6 @@ public class UserDto {
     UUID userId;
     String username;
     String email;
+    String password;
 
 }
