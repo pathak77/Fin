@@ -4,7 +4,8 @@ import com.fin.user.Dto.UserDto;
 import com.fin.user.Entity.User;
 import com.fin.user.GlobalExceptions.EmailExistsException;
 import com.fin.user.GlobalExceptions.UserAlreadyExistException;
-import com.fin.user.GlobalExceptions.UserDoesnotExist;
+import com.fin.user.GlobalExceptions.UserExceptions;
+import com.fin.user.GlobalExceptions.UserNotFoundException;
 import com.fin.user.Mapper.UserMapper;
 import com.fin.user.UserRepository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -45,12 +48,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public String updateUser(UserDto userDto) {
-        User existingUser = userRepository.findByUsername(userDto.getUsername());
+    public String updateUser(UUID id, UserDto userDto) {
+        Optional<User> existingUser = userRepository.findById(id);
 
-        if (existingUser == null) {
-            throw new UserDoesnotExist("User with username" + userDto.getUsername() + "does not exist");
+        if (!existingUser.isPresent()) {
+            throw new UserNotFoundException("User not found");
         }
+
 
         User updatedUser = userMapper.mapToUser(userDto);
         userRepository.save(updatedUser);
@@ -63,7 +67,7 @@ public class UserServiceImpl implements UserService {
         User existingUser = userRepository.findByUsername(userDto.getUsername());
 
         if (existingUser == null) {
-            throw new UserDoesnotExist("User with username" + userDto.getUsername() + "does not exist");
+            throw new UserNotFoundException("User with username" + userDto.getUsername() + "does not exist");
         }
         userRepository.delete(existingUser);
         return "User " + existingUser.getUsername() + "deleted successfully";
