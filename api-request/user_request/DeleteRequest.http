@@ -1,0 +1,5 @@
+### Delete user from the database
+Delete http://localhost:8080/{UUID}
+Content-Type: application/json
+
+###
