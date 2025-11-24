@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
     public String updateUser(UUID id, UserDto userDto) {
         Optional<User> existingUser = userRepository.findById(id);
 
-        if (!existingUser.isPresent()) {
+        if (existingUser.isEmpty()) {
             throw new UserNotFoundException("User not found");
         }
 
@@ -63,11 +63,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public String deleteUser(UserDto userDto) {
-        User existingUser = userRepository.findByUsername(userDto.getUsername());
+    public String deleteUser(UUID id) {
+        User existingUser = userRepository.findById(id).orElse(null);
 
         if (existingUser == null) {
-            throw new UserNotFoundException("User with username" + userDto.getUsername() + "does not exist");
+            throw new UserNotFoundException("User with user id" + id + "does not exist");
         }
         userRepository.delete(existingUser);
         return "User " + existingUser.getUsername() + "deleted successfully";

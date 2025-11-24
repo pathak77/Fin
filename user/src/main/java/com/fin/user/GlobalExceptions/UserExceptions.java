@@ -34,9 +34,7 @@ public class UserExceptions{
     @ExceptionHandler(UserAlreadyExistException.class)
     public ResponseEntity<Map<String, String>> handleUserNotFound(UserAlreadyExistException ex) {
         Map<String, String> errors = new HashMap<>();
-
         errors.put("message", ex.getMessage());
-
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 

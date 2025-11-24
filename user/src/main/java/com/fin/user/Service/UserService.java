@@ -8,7 +8,7 @@ public interface UserService<T> {
 
     String addUser(UserDto userDto);
     String updateUser(UUID id, UserDto userDto);
-    String deleteUser(UserDto userDto);
+    String deleteUser(UUID userId);
     List<T> getAllUsers();
     T getUserByUsername(String username);
 

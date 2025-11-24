@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
@@ -28,13 +29,19 @@ public class UserController {
 
     @PutMapping("/update")
     public ResponseEntity<String> updateUser(@Valid @RequestBody UserDto userDto) {
-        String message = userService.updateUser(userDto);
+        String message = userService.updateUser(userDto.getUserId(), userDto);
         return  new ResponseEntity<>(message, HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<String> addUser(@Valid @RequestBody UserDto userDto) {
         String message = userService.addUser(userDto);
+        return  new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable UUID id) {
+        String message =  userService.deleteUser(id);
         return  new ResponseEntity<>(message, HttpStatus.OK);
     }
 }
