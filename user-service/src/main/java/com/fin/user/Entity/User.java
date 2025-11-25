@@ -19,7 +19,7 @@ import java.util.UUID;
 public class User{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     UUID userId;
 
     @NotBlank(message = "Username is mandatory")

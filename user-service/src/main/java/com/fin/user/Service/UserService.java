@@ -6,9 +6,9 @@ import java.util.UUID;
 
 public interface UserService<T> {
 
-    String addUser(UserDto userDto);
-    String updateUser(UUID id, UserDto userDto);
-    String deleteUser(UUID userId);
+    UserDto addUser(UserDto userDto);
+    UserDto updateUser(UUID id, UserDto userDto);
+    Boolean deleteUser(UUID userId);
     List<T> getAllUsers();
     T getUserByUsername(String username);
 

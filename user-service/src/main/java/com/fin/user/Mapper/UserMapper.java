@@ -36,4 +36,12 @@ public class UserMapper {
         }
         return userDtoList;
     }
+
+    public User updateUserFromDto(UserDto userDto, User existingUser) {
+        return User.builder()
+                .email( (userDto.getEmail()).isBlank() ? existingUser.getEmail():userDto.getEmail())
+                .username((userDto.getUsername()).isBlank() ? existingUser.getUsername():userDto.getUsername())
+                .password(userDto.getPassword())
+                .build();
+    }
 }
