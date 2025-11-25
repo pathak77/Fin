@@ -19,7 +19,7 @@ public class UserController {
 
     UserServiceImpl userService;
 
-    UserController(UserServiceImpl userService) {
+     public UserController(UserServiceImpl userService) {
         this.userService = userService;
     }
 
@@ -27,6 +27,12 @@ public class UserController {
     public ResponseEntity<List<User>> getAll() {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/{username}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable String username){
+         UserDto userDto = userService.getUserByUsername(username);
+         return ResponseEntity.ok(userDto);
     }
 
     @PutMapping("/{id}")
