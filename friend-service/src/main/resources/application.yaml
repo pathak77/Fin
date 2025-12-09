@@ -3,41 +3,20 @@ spring:
     name: Friend-Service
 
 #  datasource:
-#    url: jdbc:h2:mem:testdb
-#    username: sa
-#    password: password
-#    driverClassName: org.h2.Driver
+#    url: jdbc:postgresql://localhost:5010/friend_db
+#    username: "root"
+#    password: "0000"
+#    driver-class-name: org.postgresql.Driver
 #
+#  # JPA configurations
 #  jpa:
-#    database-platform: org.hibernate.dialect.H2Dialect
 #    hibernate:
 #      ddl-auto: update
-#  sql:
-#    init:
-#      mode: always
-#  h2:
-#    console:
-#      enabled: true
-#      path: /h2-console
-#      settings:
-#        trace: false
-#        web-allow-others: false
-## PostgreSQL database configuration
-  datasource:
-    url: jdbc:postgresql://localhost:5010/friend_db
-    username: "root"
-    password: "0000"
-    driver-class-name: org.postgresql.Driver
-
-  # JPA configurations
-  jpa:
-    hibernate:
-      ddl-auto: update
-      show-sql: true
-
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+#      show-sql: true
+#
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   port: 8090
