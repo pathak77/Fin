@@ -6,19 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Component
-public class FriendDto {
+public class FriendResponseDto {
 
-    Long friendshipId;
-    String username;
-    String userEmail;
-    String friendName;
-    String friendEmail;
+    Long userId;
+    Long friendId;
 
 }

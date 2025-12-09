@@ -22,17 +22,14 @@ public class Friend {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long friendshipId;
+    Long id;
 
-
-            @Column(unique = true)
     Long userOneId;
 
-
-    @Column(unique = true)
     Long userTwoId;
 
     @Builder.Default
-    LocalDate createdAt;
+    LocalDate createdAt = LocalDate.now();
+
 
 }
