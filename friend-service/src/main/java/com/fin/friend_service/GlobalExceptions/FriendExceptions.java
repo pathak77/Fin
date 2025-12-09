@@ -13,7 +13,7 @@ import java.util.Map;
 public class FriendExceptions {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExecption(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
 
         ex.getBindingResult().getAllErrors().forEach((error) ->
@@ -31,10 +31,12 @@ public class FriendExceptions {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<Map<String, String>> handleFriendNotFound(BadRequestException ex) {
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleBadRequest(IllegalArgumentException ex) {
         Map<String, String> errors = new HashMap<>();
+
         errors.put("message", ex.getMessage());
+
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
