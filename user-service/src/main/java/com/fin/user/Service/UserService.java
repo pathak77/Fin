@@ -7,8 +7,8 @@ import java.util.UUID;
 public interface UserService<T> {
 
     UserDto addUser(UserDto userDto);
-    UserDto updateUser(UUID id, UserDto userDto);
-    Boolean deleteUser(UUID userId);
+    UserDto updateUser(Long id, UserDto userDto);
+    Boolean deleteUser(Long userId);
     List<T> getAllUsers();
     T getUserByUsername(String username);
 

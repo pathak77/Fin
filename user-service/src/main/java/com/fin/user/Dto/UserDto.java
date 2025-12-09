@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
+
 
 @Data
 @AllArgsConstructor
@@ -15,7 +15,7 @@ import java.util.UUID;
 @Component
 public class UserDto {
 
-    UUID userId;
+    Long userId;
     String username;
     String email;
     String password;

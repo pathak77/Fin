@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.UUID;
+
 
 @Entity
 @NoArgsConstructor
@@ -20,7 +20,7 @@ public class User{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    UUID userId;
+    Long userId;
 
     @NotBlank(message = "Username is mandatory")
     @Column(unique = true, nullable = false, length = 50)
