@@ -31,5 +31,7 @@ public class Friend {
     @Builder.Default
     LocalDate createdAt = LocalDate.now();
 
+    @Builder.Default
+    int maxCredit = 10000000;
 
 }
