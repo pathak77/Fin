@@ -1,0 +1,37 @@
+package com.fin.friend_service.Entity;
+
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
+@Table(
+        name = "Friend",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"userOneId", "userTwoId"})
+)
+public class Ledger {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    Long id;
+
+    Long userOneId;
+
+    Long userTwoId;
+
+    @Builder.Default
+    LocalDate createdAt = LocalDate.now();
+
+    @Builder.Default
+    int maxCredit = 10000000;
+
+}
