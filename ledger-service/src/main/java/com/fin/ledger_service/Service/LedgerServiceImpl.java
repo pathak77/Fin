@@ -1,10 +1,17 @@
 package com.fin.ledger_service.Service;
 
+import com.fin.ledger_service.Dto.LedgerInitDto;
+import com.fin.ledger_service.Dto.LedgerRequestDto;
+import com.fin.ledger_service.Dto.LedgerSummaryDto;
+import com.fin.ledger_service.Entity.Ledger;
+import com.fin.ledger_service.GlobalExceptions.DoesNotExistException;
+import com.fin.ledger_service.LedgerRepository.LedgerRepository;
+import com.fin.ledger_service.Mapper.LedgerMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,85 +19,164 @@ import java.util.stream.Collectors;
 @Service
 public class LedgerServiceImpl implements LedgerService {
 
-    private final com.fin.friend_service.FriendRepository.LedgerRepository ledgerRepository;
+    private final LedgerMapper ledgerMapper;
+    private final LedgerRepository ledgerRepository;
 
-    LedgerServiceImpl(com.fin.friend_service.FriendRepository.LedgerRepository ledgerRepository) {
+    public LedgerServiceImpl(LedgerRepository ledgerRepository, LedgerMapper ledgerMapper) {
         this.ledgerRepository = ledgerRepository;
+        this.ledgerMapper = ledgerMapper;
     }
 
-
-    @Override
-    public boolean areFriends(Long userAId, Long userBId) {
-        if (userAId.equals(userBId)) return false;
-
-        return ledgerRepository.existsByUserOneIdAndUserTwoId(userAId, userBId) ||
-                ledgerRepository.existsByUserOneIdAndUserTwoId(userBId, userAId);
-    }
 
 
     @Override
     @Transactional
-    public com.fin.friend_service.Entity.Ledger addFriend(Long userAId, Long userBId) {
+    public LedgerSummaryDto createTransaction(LedgerInitDto request) {
+        Ledger ledger = Ledger.builder()
+                .giverId(request.getGiverId())
+                .receiverId(request.getReceiverId())
+                .amount(request.getAmount())
+                .status(request.getStatus())
+                .createdAt(request.getCreatedAt())
+                .updatedAt(request.getUpdatedAt())
+                .build();
 
-        if (userAId.equals(userBId)) {
-            throw new IllegalArgumentException("A user cannot be friends with themselves.");
-        }
+        Ledger savedLedger = ledgerRepository.save(ledger);
 
-        if (areFriends(userAId, userBId)) {
-            throw new RuntimeException("Users are already friends.");
-        }
-
-        Long smallerId = Math.min(userAId, userBId);
-        Long largerId = Math.max(userAId, userBId);
-
-        com.fin.friend_service.Entity.Ledger newLedger = new com.fin.friend_service.Entity.Ledger();
-        newLedger.setUserOneId(smallerId);
-        newLedger.setUserTwoId(largerId);
-        newLedger.setCreatedAt((LocalDate.now()));
-
-        return ledgerRepository.save(newLedger);
+        return ledgerMapper.mapToSummaryDto(savedLedger);
     }
 
-    @Override
-    public List<Long> getMyFriends(Long friendId) {
-        List<com.fin.friend_service.Entity.Ledger> relationships = ledgerRepository.findAllByUserOneIdOrUserTwoId(friendId, friendId);
 
-        return relationships.stream()
-                .map(ledger -> {
-                    if (ledger.getUserOneId().equals(friendId)) {
-                        return ledger.getUserTwoId();
-                    } else {
-                        return ledger.getUserOneId();
-                    }
-                })
+
+    @Override
+    @Transactional
+    public LedgerSummaryDto updateTransactionStatus(LedgerRequestDto request) {
+
+        Boolean exists = ledgerRepository.existsByLedgerId(request.getLedgerId());
+
+        if(!exists) {
+            throw new DoesNotExistException("this transaction doesn't exist");
+        }
+
+        Ledger ledger = ledgerRepository.findByLedgerId(request.getLedgerId());
+
+        if (request.getStatus() != null) {
+            ledger.setStatus(request.getStatus());
+        } else {
+            ledger.setStatus(true);
+        }
+
+        ledger.setUpdatedAt(new Date());
+
+        Ledger updatedLedger = ledgerRepository.save(ledger);
+        return ledgerMapper.mapToSummaryDto(updatedLedger);
+    }
+
+
+
+    @Override
+    @Transactional
+    public void DeleteTransaction(LedgerRequestDto request) {
+
+        if (ledgerRepository.existsById(request.getLedgerId())) {
+            ledgerRepository.deleteById(request.getLedgerId());
+        } else {
+            throw new RuntimeException("Cannot delete: Transaction ID not found");
+        }
+    }
+
+
+
+    @Override
+    public List<LedgerSummaryDto> getTransactionByReceiverId(LedgerRequestDto request) {
+
+        if(request.getGiverId() == null ||
+        request.getReceiverId() == null ) {
+            throw new IllegalArgumentException("your Id is null");
+        }
+
+
+        Long giverId = request.getGiverId();
+        Long receiverId = request.getReceiverId();
+
+        return ledgerRepository.findByGiverIdAndReceiverId( giverId, receiverId )
+                .stream()
+                .map(ledgerMapper::mapToSummaryDto)
+                .collect(Collectors.toList());
+
+
+    }
+
+
+
+    @Override
+    public List<LedgerSummaryDto> getTransactionByDate(LedgerRequestDto request) {
+
+        Date date = request.getTransactionDate();
+
+        if (date == null) {
+            throw new IllegalArgumentException("your Date is null");
+        }
+
+        List<Ledger> ledgers = ledgerRepository.findByCreatedAt(date);
+
+        return ledgers
+                .stream()
+                .map(ledgerMapper::mapToSummaryDto)
+                .collect(Collectors.toList());
+    }
+
+
+
+    @Override
+    public List<LedgerSummaryDto> getTransactionByStatus(LedgerRequestDto request) {
+        Boolean status = request.getStatus();
+        if (status == null) {
+            throw new IllegalArgumentException("your Status is null");
+        }
+
+
+        List<Ledger> ledgers = ledgerRepository.findByStatus(status, );
+
+        return ledgers.stream()
+                .map(ledgerMapper::mapToSummaryDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public com.fin.friend_service.Entity.Ledger getFriendById(Long userId, Long friendId) {
-        com.fin.friend_service.Entity.Ledger ledger = ledgerRepository.findById(friendId).orElse(null);
-        if (ledger == null) {
-            throw new IllegalArgumentException("Friend does not exist.");
+    public List<LedgerSummaryDto> getTransactionByGiver(LedgerRequestDto request) {
+
+        if(request.getGiverId() == null ) {
+            throw new IllegalArgumentException("your Id is null");
         }
-        return ledger;
+
+        Long giverId = request.getGiverId();
+
+        List<Ledger> ledgers = ledgerRepository.findByGiverId(giverId, );
+
+        return ledgers.stream()
+                .map(ledgerMapper::mapToSummaryDto)
+                .collect(Collectors.toList());
     }
 
-    @Override
-    public BigDecimal getBalanceWithFriend(Long userId, Long friendId) {
-        return null;
-    }
+
 
     @Override
-    public void removeFriend(Long userId, Long friendId) {
-        if (userId.equals(friendId)) {
-            throw new IllegalArgumentException("A user cannot be friends with themselves.");
-        }
-        boolean isFriend = ledgerRepository.existsByUserOneIdAndUserTwoId(userId, friendId);
+    public List<LedgerSummaryDto> getTransactionByGiverAndStatus(LedgerRequestDto request) {
 
-        if (!isFriend) {
-            throw new RuntimeException("User is not friend.");
+        if(request.getGiverId() == null ||
+                request.getStatus() == null) {
+            throw new IllegalArgumentException("your Id or status is null");
         }
-        ledgerRepository.deleteFriendById(userId, friendId);
+
+        Long giverId = request.getGiverId();
+        boolean status = request.getStatus();
+
+        List<Ledger> ledgers = ledgerRepository.findByGiverIdAndStatus(giverId, );
+
+        return ledgers.stream()
+                .map(ledgerMapper::mapToSummaryDto)
+                .collect(Collectors.toList());
     }
 
 }

@@ -1,20 +1,28 @@
 package com.fin.ledger_service.Service;
 
-import java.math.BigDecimal;
+import com.fin.ledger_service.Dto.LedgerInitDto;
+import com.fin.ledger_service.Dto.LedgerRequestDto;
+import com.fin.ledger_service.Dto.LedgerSummaryDto;
+
 import java.util.List;
 
 public interface LedgerService {
 
-    com.fin.friend_service.Entity.Ledger addFriend(Long userId, Long friendUserId);
+    LedgerSummaryDto createTransaction(LedgerInitDto ledgerRequestDto);
 
-    boolean areFriends(Long userId, Long friendId);
+    LedgerSummaryDto updateTransactionStatus(LedgerRequestDto request);
 
-    List<Long> getMyFriends(Long userId);
+    void DeleteTransaction(LedgerRequestDto ledgerRequestDto);
 
-    com.fin.friend_service.Entity.Ledger getFriendById(Long userId, Long friendId);
 
-    BigDecimal getBalanceWithFriend(Long userId, Long friendId);
+    List<LedgerSummaryDto> getTransactionByGiver(LedgerRequestDto request);
 
-    void removeFriend(Long userId, Long friendId);
+    List<LedgerSummaryDto> getTransactionByReceiverId(LedgerRequestDto request);
+
+    List<LedgerSummaryDto> getTransactionByDate(LedgerRequestDto request);
+
+    List<LedgerSummaryDto> getTransactionByStatus(LedgerRequestDto ledgerRequestDto);
+
+    List<LedgerSummaryDto> getTransactionByGiverAndStatus(LedgerRequestDto request);
 
 }

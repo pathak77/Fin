@@ -1,5 +1,4 @@
-package com.fin.friend_service.Entity;
-
+package com.fin.ledger_service.Entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,31 +6,37 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
+@Table(name = "ledger_transactions")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder
-@Table(
-        name = "Friend",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"userOneId", "userTwoId"})
-)
 public class Ledger {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long ledgerId;
 
-    Long userOneId;
+    @Column(nullable = false)
+    private Long giverId;
 
-    Long userTwoId;
+    @Column(nullable = false)
+    private Long receiverId;
+
+    @Column(nullable = false, precision = 15, scale = 4)
+    private BigDecimal amount;
 
     @Builder.Default
-    LocalDate createdAt = LocalDate.now();
+    Date createdAt = new Date();
 
     @Builder.Default
-    int maxCredit = 10000000;
+    Date  updatedAt = new Date();
 
+    @Builder.Default
+    Boolean status = Boolean.FALSE ;
 }

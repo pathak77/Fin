@@ -1,19 +1,30 @@
-package com.fin.friend_service.FriendRepository;
+package com.fin.ledger_service.LedgerRepository;
 
+import com.fin.ledger_service.Entity.Ledger;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.awt.print.Pageable;
+import java.util.Date;
 import java.util.List;
 
 
 @Repository
-public interface LedgerRepository extends JpaRepository<com.fin.friend_service.Entity.Ledger, Long> {
+public interface LedgerRepository extends JpaRepository<Ledger, Long> {
 
-    boolean existsByUserOneIdAndUserTwoId(Long userOneId, Long userTwoId);
+    Boolean existsByLedgerId(Long ledgerId);
 
-    List<com.fin.friend_service.Entity.Ledger> findAllByUserOneIdOrUserTwoId(Long userOneId, Long userTwoId);
+    Ledger findByLedgerId(Long ledgerId);
 
-    com.fin.friend_service.Entity.Ledger getFriendById(Long userId, Long friendId);
+    List<Ledger> findByCreatedAt(Date date);
 
-    void deleteFriendById(Long userId, Long friendId);
+    List<Ledger> findByStatus(Boolean status, Pageable pageable);
+
+    List<Ledger> findByGiverIdAndStatus(Long giverId, Boolean status, Pageable pageable);
+
+
+    List<Ledger> findByGiverIdAndReceiverId(Long giverId, Long receiverId);
+
+    List<Ledger> findByGiverId(Long giverId, Pageable pageable);
+
 }

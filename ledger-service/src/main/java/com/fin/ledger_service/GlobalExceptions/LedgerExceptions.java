@@ -1,4 +1,4 @@
-package com.fin.friend_service.GlobalExceptions;
+package com.fin.ledger_service.GlobalExceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
-public class FriendExceptions {
+public class LedgerExceptions {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException ex) {
@@ -22,8 +22,8 @@ public class FriendExceptions {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<Map<String, String>> handleBadRequest(BadRequestException ex) {
+    @ExceptionHandler(DoesNotExistException.class)
+    public ResponseEntity<Map<String, String>> handleBadRequest(DoesNotExistException ex) {
         Map<String, String> errors = new HashMap<>();
 
         errors.put("message", ex.getMessage());

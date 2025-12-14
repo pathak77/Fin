@@ -9,20 +9,17 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.Date;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Component
-public class LedgerSummaryDto {
+public class LedgerInitDto {
     Long ledgerId;
-    Long giverId;
     Long receiverId;
+    Long giverId;
     BigDecimal amount;
-    String description;
-    Date createDate;
-    Date updateDate;
+    Date createdAt;
+    Date updatedAt;
     Boolean status;
-
 }
