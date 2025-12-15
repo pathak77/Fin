@@ -8,10 +8,14 @@ import com.fin.ledger_service.GlobalExceptions.DoesNotExistException;
 import com.fin.ledger_service.LedgerRepository.LedgerRepository;
 import com.fin.ledger_service.Mapper.LedgerMapper;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 
-import java.util.Date;
+import java.awt.print.Pageable;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,7 +70,8 @@ public class LedgerServiceImpl implements LedgerService {
             ledger.setStatus(true);
         }
 
-        ledger.setUpdatedAt(new Date());
+
+        ledger.setUpdatedAt(LocalDate.now());
 
         Ledger updatedLedger = ledgerRepository.save(ledger);
         return ledgerMapper.mapToSummaryDto(updatedLedger);
@@ -112,7 +117,7 @@ public class LedgerServiceImpl implements LedgerService {
     @Override
     public List<LedgerSummaryDto> getTransactionByDate(LedgerRequestDto request) {
 
-        Date date = request.getTransactionDate();
+        LocalDate date = request.getTransactionDate();
 
         if (date == null) {
             throw new IllegalArgumentException("your Date is null");
@@ -129,22 +134,33 @@ public class LedgerServiceImpl implements LedgerService {
 
 
     @Override
-    public List<LedgerSummaryDto> getTransactionByStatus(LedgerRequestDto request) {
+    public List<LedgerSummaryDto> getTransactionByStatus(LedgerRequestDto request, int page, int size, String sortBy, boolean ascending) {
+
         Boolean status = request.getStatus();
         if (status == null) {
-            throw new IllegalArgumentException("your Status is null");
+            throw new IllegalArgumentException("Status cannot be null for this search");
         }
 
+ 
+        Sort sort = ascending ?
+                Sort.by(Sort.Direction.ASC, sortBy) :
+                Sort.by(Sort.Direction.DESC, sortBy);
+        
+        Pageable pageable = (Pageable) PageRequest.of(page, size, sort);
 
-        List<Ledger> ledgers = ledgerRepository.findByStatus(status, );
+       
+        Page<Ledger> ledgerPage = ledgerRepository.findByStatus(status, pageable);
 
-        return ledgers.stream()
+        
+        return ledgerPage
+                .getContent()
+                .stream()
                 .map(ledgerMapper::mapToSummaryDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<LedgerSummaryDto> getTransactionByGiver(LedgerRequestDto request) {
+    public List<LedgerSummaryDto> getTransactionByGiver(LedgerRequestDto request, int page, int size, String sortBy, boolean ascending) {
 
         if(request.getGiverId() == null ) {
             throw new IllegalArgumentException("your Id is null");
@@ -152,9 +168,19 @@ public class LedgerServiceImpl implements LedgerService {
 
         Long giverId = request.getGiverId();
 
-        List<Ledger> ledgers = ledgerRepository.findByGiverId(giverId, );
+        Sort sort = ascending ?
+                Sort.by(Sort.Direction.ASC, sortBy) :
+                Sort.by(Sort.Direction.DESC, sortBy);
 
-        return ledgers.stream()
+        Pageable pageable = (Pageable) PageRequest.of(page, size, sort);
+
+
+        Page<Ledger> ledgerPage = ledgerRepository.findByGiverId(giverId, pageable);
+        
+
+        return ledgerPage
+                .getContent()
+                .stream()
                 .map(ledgerMapper::mapToSummaryDto)
                 .collect(Collectors.toList());
     }
@@ -162,7 +188,7 @@ public class LedgerServiceImpl implements LedgerService {
 
 
     @Override
-    public List<LedgerSummaryDto> getTransactionByGiverAndStatus(LedgerRequestDto request) {
+    public List<LedgerSummaryDto> getTransactionByGiverAndStatus(LedgerRequestDto request, int page, int size, String sortBy, boolean ascending) {
 
         if(request.getGiverId() == null ||
                 request.getStatus() == null) {
@@ -171,10 +197,20 @@ public class LedgerServiceImpl implements LedgerService {
 
         Long giverId = request.getGiverId();
         boolean status = request.getStatus();
+        
+        Sort sort = ascending ?
+                Sort.by(Sort.Direction.ASC, sortBy) :
+                Sort.by(Sort.Direction.DESC, sortBy);
 
-        List<Ledger> ledgers = ledgerRepository.findByGiverIdAndStatus(giverId, );
+        Pageable pageable = (Pageable) PageRequest.of(page, size, sort);
 
-        return ledgers.stream()
+
+        Page<Ledger> ledgerPage = ledgerRepository.findByGiverIdAndStatus(giverId, status, pageable);
+
+
+        return ledgerPage
+                .getContent()
+                .stream()
                 .map(ledgerMapper::mapToSummaryDto)
                 .collect(Collectors.toList());
     }

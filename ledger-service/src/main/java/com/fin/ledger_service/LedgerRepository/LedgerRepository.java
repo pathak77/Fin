@@ -1,11 +1,12 @@
 package com.fin.ledger_service.LedgerRepository;
 
 import com.fin.ledger_service.Entity.Ledger;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.awt.print.Pageable;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -16,15 +17,15 @@ public interface LedgerRepository extends JpaRepository<Ledger, Long> {
 
     Ledger findByLedgerId(Long ledgerId);
 
-    List<Ledger> findByCreatedAt(Date date);
+    List<Ledger> findByCreatedAt(LocalDate date);
 
-    List<Ledger> findByStatus(Boolean status, Pageable pageable);
+     Page<Ledger> findByStatus(Boolean status, Pageable pageable);
 
-    List<Ledger> findByGiverIdAndStatus(Long giverId, Boolean status, Pageable pageable);
+     Page<Ledger> findByGiverIdAndStatus(Long giverId, Boolean status, Pageable pageable);
 
 
     List<Ledger> findByGiverIdAndReceiverId(Long giverId, Long receiverId);
 
-    List<Ledger> findByGiverId(Long giverId, Pageable pageable);
+     Page<Ledger> findByGiverId(Long giverId, Pageable pageable);
 
 }

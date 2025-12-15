@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
+
 
 @Entity
 @Table(name = "ledger_transactions")
@@ -32,10 +32,10 @@ public class Ledger {
     private BigDecimal amount;
 
     @Builder.Default
-    Date createdAt = new Date();
+    LocalDate createdAt = LocalDate.now();
 
     @Builder.Default
-    Date  updatedAt = new Date();
+    LocalDate  updatedAt = LocalDate.now();
 
     @Builder.Default
     Boolean status = Boolean.FALSE ;

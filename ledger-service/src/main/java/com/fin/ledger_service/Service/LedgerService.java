@@ -15,14 +15,14 @@ public interface LedgerService {
     void DeleteTransaction(LedgerRequestDto ledgerRequestDto);
 
 
-    List<LedgerSummaryDto> getTransactionByGiver(LedgerRequestDto request);
+    List<LedgerSummaryDto> getTransactionByGiver(LedgerRequestDto request, int page, int size, String sortBy, boolean ascending);
 
     List<LedgerSummaryDto> getTransactionByReceiverId(LedgerRequestDto request);
 
     List<LedgerSummaryDto> getTransactionByDate(LedgerRequestDto request);
 
-    List<LedgerSummaryDto> getTransactionByStatus(LedgerRequestDto ledgerRequestDto);
+    List<LedgerSummaryDto> getTransactionByStatus(LedgerRequestDto ledgerRequestDto, int page, int size, String sortBy, boolean ascending);
 
-    List<LedgerSummaryDto> getTransactionByGiverAndStatus(LedgerRequestDto request);
+    List<LedgerSummaryDto> getTransactionByGiverAndStatus(LedgerRequestDto request, int page, int size, String sortBy, boolean ascending);
 
 }

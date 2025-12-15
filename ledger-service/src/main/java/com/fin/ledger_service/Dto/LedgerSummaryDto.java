@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 
 @Data
@@ -16,13 +16,14 @@ import java.util.Date;
 @Builder
 @Component
 public class LedgerSummaryDto {
+
     Long ledgerId;
     Long giverId;
     Long receiverId;
     BigDecimal amount;
     String description;
-    Date createDate;
-    Date updateDate;
+    LocalDate createDate;
+    LocalDate updateDate;
     Boolean status;
 
 }

@@ -1,12 +1,13 @@
 package com.fin.ledger_service.Dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -16,9 +17,15 @@ import java.util.Date;
 public class LedgerRequestDto {
 
     Long ledgerId;
+
+    @NotNull
     Long giverId;
+
     Long receiverId;
-    Date transactionDate;
+
+    @NotNull
+    LocalDate transactionDate;
+
     Boolean status;
 
 }
