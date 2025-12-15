@@ -10,11 +10,11 @@ import com.fin.ledger_service.Mapper.LedgerMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 
-import java.awt.print.Pageable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -146,7 +146,7 @@ public class LedgerServiceImpl implements LedgerService {
                 Sort.by(Sort.Direction.ASC, sortBy) :
                 Sort.by(Sort.Direction.DESC, sortBy);
         
-        Pageable pageable = (Pageable) PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
        
         Page<Ledger> ledgerPage = ledgerRepository.findByStatus(status, pageable);
@@ -172,7 +172,7 @@ public class LedgerServiceImpl implements LedgerService {
                 Sort.by(Sort.Direction.ASC, sortBy) :
                 Sort.by(Sort.Direction.DESC, sortBy);
 
-        Pageable pageable = (Pageable) PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
 
         Page<Ledger> ledgerPage = ledgerRepository.findByGiverId(giverId, pageable);
@@ -202,7 +202,7 @@ public class LedgerServiceImpl implements LedgerService {
                 Sort.by(Sort.Direction.ASC, sortBy) :
                 Sort.by(Sort.Direction.DESC, sortBy);
 
-        Pageable pageable = (Pageable) PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
 
         Page<Ledger> ledgerPage = ledgerRepository.findByGiverIdAndStatus(giverId, status, pageable);
