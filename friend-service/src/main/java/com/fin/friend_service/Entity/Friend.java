@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
 @NoArgsConstructor
@@ -29,7 +29,7 @@ public class Friend {
     Long userTwoId;
 
     @Builder.Default
-    LocalDate createdAt = LocalDate.now();
+    Date date = new Date();
 
     @Builder.Default
     int maxCredit = 10000000;
