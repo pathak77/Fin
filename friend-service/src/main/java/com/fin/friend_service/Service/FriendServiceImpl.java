@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,7 @@ public class FriendServiceImpl implements FriendService {
         Friend newFriend = new Friend();
         newFriend.setUserOneId(smallerId);
         newFriend.setUserTwoId(largerId);
-        newFriend.setCreatedAt((LocalDate.now()));
+        newFriend.setDate((new Date()));
 
         return friendRepository.save(newFriend);
     }

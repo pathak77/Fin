@@ -16,8 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.UUID;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -36,7 +34,7 @@ public class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        UUID userId = UUID.randomUUID();
+        Long userId = 12332L;
         userDto = new UserDto(userId, "JohnDoe", "john.doe@example.com", "password123");
 
     }

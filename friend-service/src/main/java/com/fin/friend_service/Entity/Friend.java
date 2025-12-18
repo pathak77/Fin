@@ -15,8 +15,7 @@ import java.util.Date;
 @Data
 @Builder
 @Table(
-        name = "Friend",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"userOneId", "userTwoId"})
+        name = "Friend"
 )
 public class Friend {
 
@@ -32,6 +31,7 @@ public class Friend {
     Date date = new Date();
 
     @Builder.Default
+            @Column(nullable = true)
     int maxCredit = 10000000;
 
 }

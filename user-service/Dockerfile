@@ -16,7 +16,7 @@ FROM eclipse-temurin:21-jdk AS runner
 
 WORKDIR /app 
 
-COPY --from=builder ./target/*.jar ./app.jar
+COPY --from=builder ./app/target/*.jar ./app.jar
 
 EXPOSE 8095
 
