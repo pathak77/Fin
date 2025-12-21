@@ -18,6 +18,8 @@ import java.time.LocalDate;
 public class LedgerInitDto {
 
     Long ledgerId;
+
+    @NotNull
     Long receiverId;
 
     @NotNull

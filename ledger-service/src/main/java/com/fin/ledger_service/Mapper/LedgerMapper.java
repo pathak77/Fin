@@ -1,5 +1,6 @@
 package com.fin.ledger_service.Mapper;
 
+
 import com.fin.ledger_service.Dto.LedgerSummaryDto;
 import com.fin.ledger_service.Entity.Ledger;
 import lombok.Builder;
@@ -22,4 +23,6 @@ public class LedgerMapper {
                 .updateDate(ledger.getUpdatedAt())
                 .build();
     }
+
+
 }
