@@ -12,6 +12,9 @@ service FriendshipService {
 
   rpc DeleteFriendship(DeleteFriendRequest) returns (DeleteFriendResponse);
 
+  rpc CheckFriendStatus (StatusRequest) returns (StatusResponse);
+
+  rpc GetBalanceWithFriend (BalanceRequest) returns (BalanceResponse);
 }
 
 message AddFriendRequest {
@@ -31,6 +34,24 @@ message GetAllFriendRequest {
 message GetAllFriendResponse {
   string userOneId = 2;
   repeated string friendId = 1;
+}
+
+message StatusRequest {
+  string user_id = 1;
+  string friend_id = 2;
+}
+
+message StatusResponse {
+  bool are_friends = 1;
+}
+
+message BalanceRequest {
+  string user_id = 1;
+  string friend_id = 2;
+}
+
+message BalanceResponse {
+  string balance = 1;
 }
 
 message DeleteFriendRequest {

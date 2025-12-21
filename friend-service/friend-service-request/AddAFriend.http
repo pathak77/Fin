@@ -1,5 +1,11 @@
 ### Post request to example server
-POST http://localhost:8090/1/friends/2
+POST http://localhost:9090/FriendshipService/CreateFriendship/
+
+
+{
+  "userOneId": "1",
+  "userTwoId": "2"
+}
 ###
 POST http://localhost:8090/1/friends/3
 ###
