@@ -2,22 +2,25 @@ spring:
   application:
     name: ledger-service
 
-  datasource:
-    url: jdbc:postgresql://localhost:5015/ledger_service_db
-    username: "root"
-    password: "0000"
-    driver-class-name: org.postgresql.Driver
-
-  # JPA configurations
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+#  datasource:
+#    url: jdbc:postgresql://localhost:5015/ledger_service_db
+#    username: "root"
+#    password: "0000"
+#    driver-class-name: org.postgresql.Driver
+#
+#  # JPA configurations
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
 server:
   port: 8085
 
+grpc:
+  server:
+    port: 9095
 
