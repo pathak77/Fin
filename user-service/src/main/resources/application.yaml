@@ -21,3 +21,11 @@ spring:
 server:
   port: 8095
 
+grpc:
+  client:
+    ledger-service:
+      address: 'localhost:9095'
+      negotiation-type: plaintext
+    friend-service:
+      address: 'localhost:9085'
+      negotiation-type: plaintext

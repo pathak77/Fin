@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+option java_package = "TransactionService";
+option java_multiple_files = true;
+
+
+
+service TransactionService {
+  rpc CreateTransaction (LedgerInitRequest) returns (LedgerSummaryResponse);
+  rpc UpdateTransactionStatus (UpdateStatusRequest) returns (LedgerSummaryResponse);
+  rpc DeleteTransaction (DeleteLedgerRequest) returns (EmptyResponse);
+
+
+  rpc GetTransactionsByReceiver (ReceiverRequest) returns (LedgerListResponse);
+  rpc GetTransactionsByDate (DateRequest) returns (LedgerListResponse);
+  rpc GetTransactionsByGiver (GiverRequest) returns (LedgerListResponse);
+  rpc GetTransactionsByGiverAndStatus (GiverStatusRequest) returns (LedgerListResponse);
+}
+
+
+message LedgerInitRequest {
+  int64 giver_id = 1;
+  int64 receiver_id = 2;
+  string amount = 3;
+  bool status = 4;
+  string created_at = 5;
+}
+
+message UpdateStatusRequest {
+  int64 ledger_id = 1;
+  optional bool status = 2;
+}
+
+message LedgerSummaryResponse {
+  int64 ledger_id = 1;
+  int64 giver_id = 2;
+  int64 receiver_id = 3;
+  string amount = 4;
+  bool status = 5;
+  string created_at = 6;
+  string updated_at = 7;
+  string description = 8;
+}
+
+message LedgerListResponse {
+  repeated LedgerSummaryResponse transactions = 1;
+}
+
+message GiverRequest {
+  int64 giver_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+  string sort_by = 4;
+  bool ascending = 5;
+}
+
+message GiverStatusRequest {
+  int64 giver_id = 1;
+  bool status = 2;
+  int32 page = 3;
+  int32 size = 4;
+  string sort_by = 5;
+  bool ascending = 6;
+}
+
+message ReceiverRequest {
+  int64 giver_id = 1;
+  int64 receiver_id = 2;
+}
+
+message DateRequest {
+  string transaction_date = 1;
+}
+
+message DeleteLedgerRequest {
+  int64 ledger_id = 1;
+}
+
+message EmptyResponse {}

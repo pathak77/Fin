@@ -2,7 +2,7 @@ package com.fin.user.Mockito.ControllerTest;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fin.user.Controller.UserController;
+import com.fin.user.Controller.FinanceController;
 import com.fin.user.Dto.UserDto;
 import com.fin.user.Service.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,8 +19,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@WebMvcTest(UserController.class)
-public class UserControllerTest {
+@WebMvcTest(FinanceController.class)
+public class FinanceControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
