@@ -1,4 +1,4 @@
-package com.fin.user.Dto;
+package com.fin.user.Dto.LedgerDto;
 
 import lombok.Data;
 

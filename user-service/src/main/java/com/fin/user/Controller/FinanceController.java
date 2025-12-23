@@ -2,7 +2,7 @@ package com.fin.user.Controller;
 
 import TransactionService.LedgerInitRequest;
 import TransactionService.LedgerSummaryResponse;
-import com.fin.user.Dto.LedgerInitRequestDTO;
+import com.fin.user.Dto.LedgerDto.LedgerInitRequestDTO;
 import com.fin.user.Dto.UserDto;
 import com.fin.user.Entity.User;
 import com.fin.user.Service.UserServiceImpl;
@@ -70,61 +70,61 @@ public class FinanceController {
     }
 
 
-
-    @PostMapping("/transaction")
-    public ResponseEntity<LedgerSummaryResponse> createTransaction(@RequestBody LedgerInitRequestDTO dto) {
-        LedgerInitRequest request = LedgerInitRequest.newBuilder()
-                .setGiverId(dto.getGiverId())
-                .setReceiverId(dto.getReceiverId())
-                .setAmount(dto.getAmount().toString())
-                .setStatus(dto.isStatus())
-                .setCreatedAt(LocalDate.now().toString())
-                .build();
-
-        return ResponseEntity.ok(ledgerStub.createTransaction(request));
-    }
-
-
-    @GetMapping("/giver/{userId}")
-    public ResponseEntity<List<LedgerSummaryResponse>> getMyLentTransactions(
-            @PathVariable Long userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "false") boolean ascending) {
-
-        GiverRequest request = GiverRequest.newBuilder()
-                .setGiverId(userId)
-                .setPage(page)
-                .setSize(size)
-                .setSortBy(sortBy)
-                .setAscending(ascending)
-                .build();
-
-        LedgerListResponse response = ledgerStub.getTransactionsByGiver(request);
-        return ResponseEntity.ok(response.getTransactionsList());
-    }
-
-
-    @PatchMapping("/{ledgerId}/status")
-    public ResponseEntity<LedgerSummaryResponse> updateStatus(
-            @PathVariable Long ledgerId,
-            @RequestParam boolean paid) {
-
-        UpdateStatusRequest request = UpdateStatusRequest.newBuilder()
-                .setLedgerId(ledgerId)
-                .setStatus(paid)
-                .build();
-
-        return ResponseEntity.ok(ledgerStub.updateTransactionStatus(request));
-    }
-
-
-    @DeleteMapping("/{ledgerId}")
-    public ResponseEntity<Void> deleteTransaction(@PathVariable Long ledgerId) {
-        ledgerStub.deleteTransaction(DeleteLedgerRequest.newBuilder()
-                .setLedgerId(ledgerId)
-                .build());
-        return ResponseEntity.noContent().build();
-    }
+//
+//    @PostMapping("/transaction")
+//    public ResponseEntity<LedgerSummaryResponse> createTransaction(@RequestBody LedgerInitRequestDTO dto) {
+//        LedgerInitRequest request = LedgerInitRequest.newBuilder()
+//                .setGiverId(dto.getGiverId())
+//                .setReceiverId(dto.getReceiverId())
+//                .setAmount(dto.getAmount().toString())
+//                .setStatus(dto.isStatus())
+//                .setCreatedAt(LocalDate.now().toString())
+//                .build();
+//
+//        return ResponseEntity.ok(ledgerStub.createTransaction(request));
+//    }
+//
+//
+//    @GetMapping("/giver/{userId}")
+//    public ResponseEntity<List<LedgerSummaryResponse>> getMyLentTransactions(
+//            @PathVariable Long userId,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size,
+//            @RequestParam(defaultValue = "createdAt") String sortBy,
+//            @RequestParam(defaultValue = "false") boolean ascending) {
+//
+//        GiverRequest request = GiverRequest.newBuilder()
+//                .setGiverId(userId)
+//                .setPage(page)
+//                .setSize(size)
+//                .setSortBy(sortBy)
+//                .setAscending(ascending)
+//                .build();
+//
+//        LedgerListResponse response = ledgerStub. getTransactionsByGiver(request);
+//        return ResponseEntity.ok(response.getTransactionsList());
+//    }
+//
+//
+//    @PatchMapping("/{ledgerId}/status")
+//    public ResponseEntity<LedgerSummaryResponse> updateStatus(
+//            @PathVariable Long ledgerId,
+//            @RequestParam boolean paid) {
+//
+//        UpdateStatusRequest request = UpdateStatusRequest.newBuilder()
+//                .setLedgerId(ledgerId)
+//                .setStatus(paid)
+//                .build();
+//
+//        return ResponseEntity.ok(ledgerStub.updateTransactionStatus(request));
+//    }
+//
+//
+//    @DeleteMapping("/{ledgerId}")
+//    public ResponseEntity<Void> deleteTransaction(@PathVariable Long ledgerId) {
+//        ledgerStub.deleteTransaction(DeleteLedgerRequest.newBuilder()
+//                .setLedgerId(ledgerId)
+//                .build());
+//        return ResponseEntity.noContent().build();
+//    }
 }

@@ -1,12 +1,14 @@
 package com.fin.user.Service.LedgerService;
 
-import FriendshipService.GetAllFriendRequest;
 import TransactionService.*;
-import com.fin.user.Dto.LedgerInitRequestDTO;
-import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.springframework.http.ResponseEntity;
+import com.fin.user.Dto.LedgerDto.LedgerSummaryDto;
+import com.fin.user.Mapper.LedgerMapper;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,43 +17,67 @@ import java.util.List;
 @Service
 public class LedgerServiceGrpcClient {
 
-  @GrpcClient("transaction-service")
-        private TransactionServiceGrpc.TransactionServiceBlockingStub transactionStub;
+    private static final Logger logger = LoggerFactory.getLogger(LedgerServiceGrpcClient.class);
 
-        public LedgerSummaryResponse createTransaction(Long giverId, Long receiverId, BigDecimal amount) {
-            LedgerInitRequest request = LedgerInitRequest.newBuilder()
+    private final TransactionServiceGrpc.TransactionServiceBlockingStub transactionStub;
+
+    private final LedgerMapper mapper;
+
+    LedgerServiceGrpcClient(
+            @Value("${grpc.server.address}") String serverAddress,
+            @Value("${grpc.server.port}") int port,
+            LedgerMapper mapper
+    ){
+        this.mapper = mapper;
+
+        logger.info("Transaction service initialized address : {} , port : {}", serverAddress, port);
+
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(serverAddress, port).usePlaintext().build();
+
+        transactionStub = TransactionServiceGrpc.newBlockingStub(channel);
+
+    }
+
+    public LedgerSummaryResponse createTransaction(Long giverId, Long receiverId, BigDecimal amount) {
+        LedgerInitRequest request = LedgerInitRequest.newBuilder()
                     .setGiverId(giverId)
                     .setReceiverId(receiverId)
                     .setAmount(amount.toString())
                     .setStatus(false)
                     .setCreatedAt(LocalDate.now().toString())
                     .build();
-            return transactionStub.createTransaction(request);
-        }
-
-    public ResponseEntity<LedgerSummaryResponse> createTransaction(@RequestBody LedgerInitRequestDTO dto) {
-        LedgerInitRequest request = LedgerInitRequest.newBuilder()
-                .setGiverId(dto.getGiverId())
-                .setReceiverId(dto.getReceiverId())
-                .setAmount(dto.getAmount().toString())
-                .setStatus(dto.isStatus())
-                .setCreatedAt(LocalDate.now().toString())
-                .build();
-
-        return ResponseEntity.ok(transactionStub.createTransaction(request));
+        return transactionStub.createTransaction(request);
     }
 
+    public LedgerSummaryResponse updateTransactionStatus(Long ledgerId, boolean paid) {
 
+        UpdateStatusRequest request = UpdateStatusRequest.newBuilder()
+                .setLedgerId(ledgerId)
+                .setStatus(paid)
+                .build();
+        return transactionStub.updateTransactionStatus(request);
+    }
 
-    public ResponseEntity<List<LedgerSummaryResponse>> getMyLentTransactions(
-            @PathVariable Long userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "false") boolean ascending) {
+    public void deleteTransaction(Long ledgerId) {
+        DeleteLedgerRequest request = DeleteLedgerRequest.newBuilder()
+                .setLedgerId(ledgerId)
+                .build();
 
-        GiverRequest request = GiverRequest.newBuilder()
-                .setGiverId(userId)
+        transactionStub.deleteTransaction(request);
+    }
+
+    public List<LedgerSummaryDto> getTransactionsByReceiver(
+            Long giverId,
+            Long receiverID,
+            int page,
+            int size,
+            String sortBy,
+            boolean ascending
+    ) {
+
+        ReceiverRequest request = ReceiverRequest.newBuilder()
+                .setGiverId(giverId)
+                .setReceiverId(receiverID)
                 .setPage(page)
                 .setSize(size)
                 .setSortBy(sortBy)
@@ -59,30 +85,77 @@ public class LedgerServiceGrpcClient {
                 .build();
 
         LedgerListResponse response = transactionStub.getTransactionsByGiver(request);
-        return ResponseEntity.ok(response.getTransactionsList());
+
+
+        return mapper.mapToLedgerSummaryList(response);
     }
 
+    public List<LedgerSummaryDto> getTransactionsByDate(
+            Long giverId,
+            Long receiverID,
+            int page,
+            int size,
+            String sortBy,
+            boolean ascending,
+            LocalDate date
+    ) {
 
-
-    public ResponseEntity<LedgerSummaryResponse> updateStatus(
-            @PathVariable Long ledgerId,
-            @RequestParam boolean paid) {
-
-        UpdateStatusRequest request = UpdateStatusRequest.newBuilder()
-                .setLedgerId(ledgerId)
-                .setStatus(paid)
+        DateRequest request = DateRequest.newBuilder()
+                .setTransactionDate(String.valueOf(date))
+                .setGiverId(giverId)
+                .setReceiverId(receiverID)
+                .setPage(page)
+                .setSize(size)
+                .setSortBy(sortBy)
+                .setAscending(ascending)
                 .build();
 
-        return ResponseEntity.ok(transactionStub.updateTransactionStatus(request));
+        LedgerListResponse response = transactionStub.getTransactionsByDate(request);
+        return mapper.mapToLedgerSummaryList(response);
     }
 
 
+    public List<LedgerSummaryDto> getTransactionsByGiver(
+            Long giverId,
+            int page,
+            int size,
+            String sortBy,
+            boolean ascending
+    ) {
 
-    public ResponseEntity<Void> deleteTransaction(@PathVariable Long ledgerId) {
-        EmptyResponse flag = transactionStub.deleteTransaction(DeleteLedgerRequest.newBuilder()
-                .setLedgerId(ledgerId)
-                .build());
+        GiverRequest request = GiverRequest.newBuilder()
+                .setGiverId(giverId)
+                .setPage(page)
+                .setSize(size)
+                .setSortBy(sortBy)
+                .setAscending(ascending)
+                .build();
 
-        return ResponseEntity.noContent().build();
+        LedgerListResponse response = transactionStub.getTransactionsByGiver(request);
+        return mapper.mapToLedgerSummaryList(response);
     }
+    public List<LedgerSummaryDto> getTransactionsByGiverAndStatus(
+            Long giverId,
+            boolean status,
+            int page,
+            int size,
+            String sortBy,
+            boolean ascending)
+    {
+
+        GiverStatusRequest request = GiverStatusRequest.newBuilder()
+                .setGiverId(giverId)
+                .setStatus(status)
+                .setPage(page)
+                .setSize(size)
+                .setSortBy(sortBy)
+                .setAscending(ascending)
+                .build();
+
+        LedgerListResponse response = transactionStub.getTransactionsByGiverAndStatus(request);
+        return mapper.mapToLedgerSummaryList(response);
+
+    }
+
+
 }

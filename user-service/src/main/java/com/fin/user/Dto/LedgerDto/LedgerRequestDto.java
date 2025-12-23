@@ -1,29 +1,31 @@
-package com.fin.user.Dto;
+package com.fin.user.Dto.LedgerDto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Component
-public class LedgerSummaryDto {
+public class LedgerRequestDto {
 
     Long ledgerId;
+
+    @NotNull
     Long giverId;
+
     Long receiverId;
-    BigDecimal amount;
-    String description;
-    LocalDate createDate;
-    LocalDate updateDate;
+
+    @NotNull
+    LocalDate transactionDate;
+
     Boolean status;
 
 }
