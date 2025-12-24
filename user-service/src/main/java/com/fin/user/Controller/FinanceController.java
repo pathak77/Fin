@@ -1,30 +1,45 @@
 package com.fin.user.Controller;
 
-import TransactionService.LedgerInitRequest;
+
+import FriendshipService.FriendshipServiceGrpc;
 import TransactionService.LedgerSummaryResponse;
-import com.fin.user.Dto.LedgerDto.LedgerInitRequestDTO;
+import com.fin.user.Dto.FriendDto.FriendResponseDto;
+import com.fin.user.Dto.FriendDto.FriendSummaryDto;
+import com.fin.user.Dto.LedgerDto.LedgerSummaryDto;
 import com.fin.user.Dto.UserDto;
 import com.fin.user.Entity.User;
+import com.fin.user.Service.FriendshipService.FriendshipServiceGrpcClient;
+import com.fin.user.Service.LedgerService.LedgerServiceGrpcClient;
 import com.fin.user.Service.UserServiceImpl;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/app")
 public class FinanceController {
 
-    UserServiceImpl userService;
+    private final UserServiceImpl userService;
+    private final LedgerServiceGrpcClient ledgerService;
+    private final FriendshipServiceGrpcClient friendService;
 
-     public FinanceController(UserServiceImpl userService) {
+
+     public FinanceController(UserServiceImpl userService,
+                              LedgerServiceGrpcClient ledgerService,
+                              FriendshipServiceGrpcClient friendService)
+     {
         this.userService = userService;
-    }
+        this.ledgerService = ledgerService;
+         this.friendService = friendService;
+     }
 
     @GetMapping
     public ResponseEntity<List<User>> getAll() {
@@ -33,7 +48,7 @@ public class FinanceController {
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable String username){
+    public ResponseEntity<UserDto> getUser(@PathVariable String username){
          UserDto userDto = userService.getUserByUsername(username);
          return ResponseEntity.ok(userDto);
     }
@@ -63,68 +78,130 @@ public class FinanceController {
         boolean deleted = userService.deleteUser(id);
 
         if (deleted) {
-            return ResponseEntity.noContent().build(); // 204 No Content - standard for successful DELETE
+            return ResponseEntity.noContent().build();
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + id);
         }
     }
 
+// FRIEND SERVICE IMPLEMENTATION
+    @GetMapping("{userId}/friend")
+    public ResponseEntity<FriendSummaryDto> getAllFriends(@PathVariable Long userId) {
+        String user = String.valueOf(userId);
 
-//
-//    @PostMapping("/transaction")
-//    public ResponseEntity<LedgerSummaryResponse> createTransaction(@RequestBody LedgerInitRequestDTO dto) {
-//        LedgerInitRequest request = LedgerInitRequest.newBuilder()
-//                .setGiverId(dto.getGiverId())
-//                .setReceiverId(dto.getReceiverId())
-//                .setAmount(dto.getAmount().toString())
-//                .setStatus(dto.isStatus())
-//                .setCreatedAt(LocalDate.now().toString())
-//                .build();
-//
-//        return ResponseEntity.ok(ledgerStub.createTransaction(request));
-//    }
-//
-//
-//    @GetMapping("/giver/{userId}")
-//    public ResponseEntity<List<LedgerSummaryResponse>> getMyLentTransactions(
-//            @PathVariable Long userId,
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size,
-//            @RequestParam(defaultValue = "createdAt") String sortBy,
-//            @RequestParam(defaultValue = "false") boolean ascending) {
-//
-//        GiverRequest request = GiverRequest.newBuilder()
-//                .setGiverId(userId)
-//                .setPage(page)
-//                .setSize(size)
-//                .setSortBy(sortBy)
-//                .setAscending(ascending)
-//                .build();
-//
-//        LedgerListResponse response = ledgerStub. getTransactionsByGiver(request);
-//        return ResponseEntity.ok(response.getTransactionsList());
-//    }
-//
-//
-//    @PatchMapping("/{ledgerId}/status")
-//    public ResponseEntity<LedgerSummaryResponse> updateStatus(
-//            @PathVariable Long ledgerId,
-//            @RequestParam boolean paid) {
-//
-//        UpdateStatusRequest request = UpdateStatusRequest.newBuilder()
-//                .setLedgerId(ledgerId)
-//                .setStatus(paid)
-//                .build();
-//
-//        return ResponseEntity.ok(ledgerStub.updateTransactionStatus(request));
-//    }
-//
-//
-//    @DeleteMapping("/{ledgerId}")
-//    public ResponseEntity<Void> deleteTransaction(@PathVariable Long ledgerId) {
-//        ledgerStub.deleteTransaction(DeleteLedgerRequest.newBuilder()
-//                .setLedgerId(ledgerId)
-//                .build());
-//        return ResponseEntity.noContent().build();
-//    }
+        FriendSummaryDto response = friendService.getAllFriendship(user);
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    @PostMapping("/friend")
+    public ResponseEntity<FriendResponseDto> addFriend(@Valid FriendResponseDto request){
+
+         String user = String.valueOf(request.getUserId());
+         String friend = String.valueOf(request.getFriendId());
+
+         FriendResponseDto response = friendService.createFriendship(user, friend);
+         return ResponseEntity.created(URI.create("/friend/" + response.getFriendId()))
+                 .body(response);
+
+    }
+
+    @DeleteMapping("/friend")
+    public ResponseEntity<?> deleteFriend(@Valid FriendResponseDto request){
+
+         String user = String.valueOf(request.getUserId());
+         String friend = String.valueOf(request.getFriendId());
+
+         boolean response = friendService.deleteFriendship(user, friend);
+         return ResponseEntity.ok(response);
+    }
+
+
+
+// LEDGER SERVICE IMPLEMENTATION
+
+
+    @PostMapping("{uid}/ledger/{fid}")
+    public ResponseEntity<LedgerSummaryResponse> createTransaction(
+            @PathVariable Long uid,
+            @PathVariable Long fid,
+            @RequestParam(name = "amount",
+                    required = false,
+                    defaultValue = "0") BigDecimal amount) {
+
+        return ResponseEntity.ok(ledgerService.createTransaction(uid, fid, amount));
+
+    }
+
+
+    @PatchMapping("ledger/{ledgerId}/status")
+    public ResponseEntity<LedgerSummaryResponse> updateStatus(
+            @PathVariable Long ledgerId,
+            @RequestParam boolean paid) {
+        return ResponseEntity.ok(ledgerService.updateTransactionStatus(ledgerId, paid));
+    }
+
+
+    @DeleteMapping("ledger/{ledgerId}")
+    public ResponseEntity<Void> deleteTransaction(@PathVariable Long ledgerId) {
+        ledgerService.deleteTransaction(ledgerId);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("ledger/receiver/{receiverId}")
+    public ResponseEntity<List<LedgerSummaryDto>> getByReceiver(
+            @RequestParam Long giverId,
+            @PathVariable Long receiverId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "true") boolean ascending) {
+
+        List<LedgerSummaryDto> transactions = ledgerService.getTransactionsByReceiver(giverId, receiverId, page, size, sortBy, ascending);
+        return ResponseEntity.ok(transactions);
+    }
+
+
+    @GetMapping("ledger/{giverId}/date")
+    public ResponseEntity<List<LedgerSummaryDto>> getByDate(
+            @PathVariable Long giverId,
+            @RequestParam Long receiverId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "true") boolean ascending) {
+
+        List<LedgerSummaryDto> transactions = ledgerService.getTransactionsByDate(giverId, receiverId, page, size, sortBy, ascending, date);
+        return ResponseEntity.ok(transactions);
+    }
+
+
+    @GetMapping("{giverId}/ledger/giver/")
+    public ResponseEntity<List<LedgerSummaryDto>> getByGiver(
+            @PathVariable Long giverId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "true") boolean ascending) {
+
+        List<LedgerSummaryDto> transactions = ledgerService.getTransactionsByGiver(giverId, page, size, sortBy, ascending);
+        return ResponseEntity.ok(transactions);
+    }
+
+
+    @GetMapping("{giverId}/ledger/giver/status")
+    public ResponseEntity<List<LedgerSummaryDto>> getByGiverAndStatus(
+            @PathVariable Long giverId,
+            @RequestParam boolean status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "true") boolean ascending) {
+
+        List<LedgerSummaryDto> transactions = ledgerService.getTransactionsByGiverAndStatus(giverId, status, page, size, sortBy, ascending);
+        return ResponseEntity.ok(transactions);
+    }
 }

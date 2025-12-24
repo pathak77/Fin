@@ -15,5 +15,6 @@ import java.util.List;
 @Component
 public class FriendSummaryDto {
     Long userOneId;
+    int count;
     List<Long> friendList;
 }

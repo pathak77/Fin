@@ -29,3 +29,9 @@ grpc:
     friend-service:
       address: 'localhost:9085'
       negotiation-type: plaintext
+  server:
+    ledger-service:
+      port: 9095
+
+    friend-service:
+      port: 9085

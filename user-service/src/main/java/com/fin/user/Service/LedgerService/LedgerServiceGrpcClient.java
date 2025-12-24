@@ -24,8 +24,8 @@ public class LedgerServiceGrpcClient {
     private final LedgerMapper mapper;
 
     LedgerServiceGrpcClient(
-            @Value("${grpc.server.address}") String serverAddress,
-            @Value("${grpc.server.port}") int port,
+            @Value("${grpc.client.ledger-service.address}") String serverAddress,
+            @Value("${grpc.server.ledger-service.port}") int port,
             LedgerMapper mapper
     ){
         this.mapper = mapper;
@@ -84,7 +84,7 @@ public class LedgerServiceGrpcClient {
                 .setAscending(ascending)
                 .build();
 
-        LedgerListResponse response = transactionStub.getTransactionsByGiver(request);
+        LedgerListResponse response = transactionStub.getTransactionsByReceiver(request);
 
 
         return mapper.mapToLedgerSummaryList(response);
