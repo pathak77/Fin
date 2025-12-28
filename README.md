@@ -16,6 +16,9 @@ The system is designed to be **stateless and distributed**. The core logic is sp
 * **Friend Service (gRPC):** Handles the graph relationships (friendships) between users.
 * **Ledger Service (gRPC):** The transactional core. Records debits/credits and calculates balances.
 
+
+![Auth diagram](images/1.jpg)
+![Flow diagram](images/2.jpg)
 ---
 
 ## 🛠️ Tech Stack
@@ -97,9 +100,9 @@ This project is best run using the orchestration file included in the root direc
 1. Build the project
 ```bash
   ./mvnw clean package -DskipTests
-
+```
 2. start the mesh
 ```bash
   docker-compose up --build -d
-
+```
 3. Verify Status: The API Gateway will be available at http://localhost:8080/app.
