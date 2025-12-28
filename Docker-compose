@@ -1,0 +1,121 @@
+
+services:
+  # ----------------------------------------------------------------
+  # 1. API GATEWAY
+  # The entry point. Checks token with Auth, then forwards to User.
+  # ----------------------------------------------------------------
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:5000
+      - USER_SERVICE_URL=http://user-service:4000
+    depends_on:
+      - auth-service
+      - user-service
+    networks:
+      - finance-network
+
+  # ----------------------------------------------------------------
+  # 2. AUTH SERVICE
+  # Issues tokens and verifies them when asked by Gateway.
+  # ----------------------------------------------------------------
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=auth-db
+      - JWT_SECRET=base64 key to be generated
+    depends_on:
+      - auth-db
+    networks:
+      - finance-network
+
+  # ----------------------------------------------------------------
+  # 3. USER SERVICE
+  # The Orchestrator. Receives HTTP from Gateway, calls gRPC services.
+  # ----------------------------------------------------------------
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "4000:4000"
+    environment:
+      - LEDGER_GRPC_HOST=ledger-service:50051
+      - FRIEND_GRPC_HOST=friend-service:50052
+    depends_on:
+      - ledger-service
+      - friend-service
+    networks:
+      - internal-network
+
+  # ----------------------------------------------------------------
+  # 4. LEDGER SERVICE (gRPC)
+  # Handles money/transactions. Only accessible internally.
+  # ----------------------------------------------------------------
+  ledger-service:
+    build: ./ledger-service
+    container_name: ledger-service
+    expose:
+      - "50051" # gRPC standard port, not exposed to host machine, only network
+    environment:
+      - DB_HOST=ledger-db
+    depends_on:
+      - ledger-db
+    networks:
+      - internal-network
+
+  # ----------------------------------------------------------------
+  # 5. FRIEND SERVICE (gRPC)
+  # Handles friend lists. Only accessible internally.
+  # ----------------------------------------------------------------
+  friend-service:
+    build: ./friend-service
+    container_name: friend-service
+    expose:
+      - "50052" 
+    environment:
+      - DB_HOST=friend-db
+    depends_on:
+      - friend-db
+    networks:
+      - internal-network
+
+  # ----------------------------------------------------------------
+  # DATABASES
+  # ----------------------------------------------------------------
+  auth-db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=auth_user
+      - POSTGRES_PASSWORD=auth_pass
+      - POSTGRES_DB=auth_db
+    networks:
+      - internal-network
+
+  ledger-db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=ledger_user
+      - POSTGRES_PASSWORD=ledger_pass
+      - POSTGRES_DB=ledger_db
+    networks:
+      - internal-network
+
+  friend-db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=friend
+      - POSTGRES_PASSWORD=friend_password
+      - POSTGRES_DB=friend_db
+    networks:
+      - internal-network
+
+# Shared Network so services can talk using their names (e.g. "ping auth-service")
+networks:
+   internal:
+    driver: bridge
