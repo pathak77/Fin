@@ -23,7 +23,7 @@ The system is designed to be **stateless and distributed**. The core logic is sp
 
 ## 🛠️ Tech Stack
 
-* **Framework:** Spring Boot 3.x
+* **Framework:** Spring Boot 3.5.9
 * **Communication:** REST API (External), gRPC (Internal)
 * **Database:** PostgreSQL (Per-service isolation)
 * **Containerization:** Docker & Docker Compose
