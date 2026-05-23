@@ -18,8 +18,9 @@ public interface LedgerRepository extends JpaRepository<Ledger, Long> {
 
     Ledger findByLedgerId(Long ledgerId);
 
-    List<Ledger> findByCreatedAt(LocalDate date);
+    Page<Ledger> findByCreatedAt(LocalDate date, Pageable pageable);
 
+    Page<Ledger> findByReceiverId(Long receiverId, Pageable pageable);
 
     List<Ledger> findByGiverIdAndReceiverId(Long giverId, Long receiverId);
 

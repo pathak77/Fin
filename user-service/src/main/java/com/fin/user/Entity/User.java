@@ -28,7 +28,7 @@ public class User{
 
     @NotBlank(message = "Email is mandatory")
     @Email
-    @Column(unique = true, nullable = false, length = 20)
+    @Column(unique = true, nullable = false)
     String email;
 
     @NotBlank

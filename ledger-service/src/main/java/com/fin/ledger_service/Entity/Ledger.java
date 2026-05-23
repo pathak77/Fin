@@ -22,6 +22,9 @@ public class Ledger {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ledgerId;
 
+    @Version
+    private Long version;
+
     @Column(nullable = false)
     private Long giverId;
 

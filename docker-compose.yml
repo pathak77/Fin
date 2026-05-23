@@ -1,0 +1,120 @@
+services:
+  # ----------------------------------------------------------------
+  # 1. USER SERVICE (Gateway)
+  # The Orchestrator. Receives HTTP from Client, calls gRPC services.
+  # ----------------------------------------------------------------
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "8080:8095" # Exposes Spring Boot port 8095 to host 8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://user-db:5432/user_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=0000
+    depends_on:
+      - user-db
+      - ledger-service
+      - friend-service
+    networks:
+      - internal-network
+
+  # ----------------------------------------------------------------
+  # 2. LEDGER SERVICE (gRPC)
+  # Handles money/transactions. Only accessible internally.
+  # ----------------------------------------------------------------
+  ledger-service:
+    build: ./ledger-service
+    container_name: ledger-service
+    expose:
+      - "9095" # gRPC port, exposed to internal network
+      - "8085" # HTTP port
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ledger-db:5432/ledger_service_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=0000
+    depends_on:
+      - ledger-db
+    networks:
+      - internal-network
+
+  # ----------------------------------------------------------------
+  # 3. FRIEND SERVICE (gRPC)
+  # Handles friend lists. Only accessible internally.
+  # ----------------------------------------------------------------
+  friend-service:
+    build: ./friend-service
+    container_name: friend-service
+    expose:
+      - "9085" # gRPC port
+      - "8090" # HTTP port (assuming it has one)
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://friend-db:5432/friend_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=0000
+    depends_on:
+      - friend-db
+    networks:
+      - internal-network
+
+  # ----------------------------------------------------------------
+  # 4. NOTIFICATION SERVICE
+  # Handles notifications.
+  # ----------------------------------------------------------------
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    expose:
+      - "8091" # HTTP port
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://notification-db:5432/notification_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=0000
+    depends_on:
+      - notification-db
+    networks:
+      - internal-network
+
+  # ----------------------------------------------------------------
+  # DATABASES
+  # ----------------------------------------------------------------
+  user-db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=0000
+      - POSTGRES_DB=user_db
+    networks:
+      - internal-network
+
+  ledger-db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=0000
+      - POSTGRES_DB=ledger_service_db
+    networks:
+      - internal-network
+
+  friend-db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=0000
+      - POSTGRES_DB=friend_db
+    networks:
+      - internal-network
+
+  notification-db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=0000
+      - POSTGRES_DB=notification_db
+    networks:
+      - internal-network
+
+# Shared Network so services can talk using their names
+networks:
+  internal-network:
+    driver: bridge

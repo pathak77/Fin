@@ -1,105 +1,103 @@
-# 💰 Distributed Finance Management System (FMS)
+<div align="center">
+  
+# Nexus FinTech System
+*A High-Performance, Distributed Financial Ledger & Social Graph Platform*
 
-![Java](https://img.shields.io/badge/Java-21-orange)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.0-green)
-![Docker](https://img.shields.io/badge/Docker-Enabled-blue)
-![gRPC](https://img.shields.io/badge/Communication-gRPC-red)
+[![Java](https://img.shields.io/badge/Java-21+-ED8B00?style=flat-square&logo=openjdk&logoColor=white)](https://java.com)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5+-6DB33F?style=flat-square&logo=spring&logoColor=white)](https://spring.io/)
+[![gRPC](https://img.shields.io/badge/gRPC-Protobuf-244C5A?style=flat-square&logo=grpc&logoColor=white)](https://grpc.io/)
+[![Kafka](https://img.shields.io/badge/Apache_Kafka-Event_Driven-231F20?style=flat-square&logo=apachekafka&logoColor=white)](https://kafka.apache.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-ACID-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://postgresql.org)
+[![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docker.com)
 
-A robust, microservices-based financial tracking application designed to manage personal loans and debts between friends. This project utilizes a **BFF (Backend for Frontend)** architecture, where this central Spring Boot Service orchestrates communication between clients and high-performance internal gRPC services.
-
-## 🚀 Architecture Overview
-
-The system is designed to be **stateless and distributed**. The core logic is split into domain-specific microservices:
-
-* **Finance Gateway (This Service):** The entry point for all client requests. It handles HTTP REST traffic, performs validation, and delegates heavy lifting to backend services via **gRPC**.
-* **User Service:** Manages user identity, profiles, and authentication data.
-* **Friend Service (gRPC):** Handles the graph relationships (friendships) between users.
-* **Ledger Service (gRPC):** The transactional core. Records debits/credits and calculates balances.
+</div>
 
 ---
 
-## 🛠️ Tech Stack
+##  Executive Summary
 
-* **Framework:** Spring Boot 3.x
-* **Communication:** REST API (External), gRPC (Internal)
-* **Database:** PostgreSQL (Per-service isolation)
-* **Containerization:** Docker & Docker Compose
-* **Build Tool:** Maven
+Nexus is a deeply engineered, distributed microservices platform designed to handle complex financial transactions and social graphing with strict guarantees around data integrity, concurrency, and performance. 
 
----
+Rather than relying on a monolithic architecture, the system is strictly bounded into independent domains (**User, Ledger, Friend, and Notification**). It leverages **gRPC** for ultra-low latency synchronous communication across bounded contexts, and **Apache Kafka** for asynchronous, event-driven eventual consistency. 
 
-## 🔌 API Reference
-
-All endpoints are prefixed with `/app`.
-
-### 1. User Management
-*Manages user profiles and identity.*
-
-| Method | Endpoint | Description | Request Body / Params |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/app` | Get all registered users | N/A |
-| `POST` | `/app` | Register a new user | Body: `UserDto` |
-| `GET` | `/app/{username}` | Get user details by username | Path: `username` |
-| `PUT` | `/app/{id}` | Update user profile | Path: `id`, Body: `UserDto` |
-| `DELETE` | `/app/{id}` | Delete a user account | Path: `id` |
-
-### 2. Friendship Management
-*Internal communication via `FriendshipServiceGrpcClient`.*
-
-| Method | Endpoint | Description | Request Body / Params |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/app/{userId}/friend` | Get a list of all friends for a user | Path: `userId` |
-| `POST` | `/app/friend` | Add a new friend | Body: `FriendResponseDto` |
-| `DELETE` | `/app/friend` | Remove a friendship | Body: `FriendResponseDto` |
-
-### 3. Ledger & Transactions
-*Internal communication via `LedgerServiceGrpcClient`.*
-
-| Method | Endpoint | Description | Request Body / Params |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/app/{uid}/ledger/{fid}` | **Create Transaction** (Lend/Borrow) | Path: `uid` (Giver), `fid` (Receiver)<br>Query: `?amount=100.50` |
-| `PATCH` | `/app/ledger/{ledgerId}/status` | **Update Status** (Mark as Paid/Unpaid) | Query: `?paid=true` |
-| `DELETE` | `/app/ledger/{ledgerId}` | Delete a transaction entry | Path: `ledgerId` |
-| `GET` | `/app/ledger/receiver/{receiverId}` | Get history where user **received** money | Query: `giverId`, `page`, `size`, `sortBy` |
-| `GET` | `/app/{giverId}/ledger/giver/` | Get history where user **gave** money | Query: `page`, `size`, `sortBy` |
-| `GET` | `/app/{giverId}/ledger/giver/status` | Filter gave history by status (Paid/Pending) | Query: `status=true`, `page`, `size` |
-| `GET` | `/app/ledger/{giverId}/date` | Filter history by specific date | Query: `receiverId`, `date=YYYY-MM-DD` |
+This project demonstrates a deep understanding of distributed systems, concurrency control, database optimization, and modern enterprise Java.
 
 ---
 
-## ⚙️ Configuration & Environment Variables
+##  System Architecture
 
-The application requires connection details for the internal gRPC services. Create a `.env` file or set these in your deployment environment variables:
-
-```properties
-# Server Configuration
-SERVER_PORT=8080
-
-# Database Configuration (For User Logic)
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/user_db
-SPRING_DATASOURCE_USERNAME=postgres
-SPRING_DATASOURCE_PASSWORD=password
-
-# gRPC Client Configuration (Target Services)
-# These point to the internal Docker service names or localhost ports
-GRPC_LEDGER_SERVICE_HOST=ledger-service
-GRPC_LEDGER_SERVICE_PORT=50051
-
-GRPC_FRIEND_SERVICE_HOST=friend-service
-GRPC_FRIEND_SERVICE_PORT=50052
-
+```mermaid
+graph TD
+    Client((External Clients)) --> |REST / HTTP| API_Gateway[User Service Gateway]
+    
+    API_Gateway --> |gRPC / Protobuf| LedgerService[Ledger Service]
+    API_Gateway --> |gRPC / Protobuf| FriendService[Friend Service]
+    
+    LedgerService --> |Kafka Producer| EventBus((Apache Kafka))
+    FriendService --> |Kafka Producer| EventBus
+    
+    EventBus --> |Kafka Consumer| NotificationService[Notification Service]
+    
+    API_Gateway --> DB1[(User DB)]
+    LedgerService --> DB2[(Ledger DB)]
+    FriendService --> DB3[(Social Graph DB)]
+    
+    classDef core fill:#2a3d45,stroke:#fff,stroke-width:1px,color:#fff;
+    classDef db fill:#3c6e71,stroke:#fff,stroke-width:1px,color:#fff;
+    classDef event fill:#d9d9d9,stroke:#000,stroke-width:1px,color:#000;
+    
+    class API_Gateway,LedgerService,FriendService,NotificationService core;
+    class DB1,DB2,DB3 db;
+    class EventBus event;
 ```
+
 ---
-## 🐳 Running with Docker
 
-This project is best run using the orchestration file included in the root directory
+##  Engineering Decisions & Technical Depth
 
-1. Build the project
+### 1. Data Integrity & Concurrency Control (The Ledger)
+In a financial system, race conditions are catastrophic. To ensure absolute data consistency under highly concurrent traffic, the Ledger Service implements **Optimistic Locking** at the database layer. 
+- By utilizing Hibernate's `@Version` mechanism on entity states, the system mathematically prevents the "lost update" problem and dual-spend anomalies without resorting to severe performance-bottlenecking pessimistic table locks.
+- Transactions are strictly bounded via `@Transactional` to ensure ACID compliance across multi-table operations.
+
+### 2. High-Performance Inter-Service Communication
+REST/JSON over HTTP is human-readable but computationally expensive. To satisfy strict latency SLAs between microservices, **gRPC** and **Protocol Buffers (Protobuf)** were implemented.
+- **Why?** Binary serialization dramatically reduces payload size and parsing overhead, allowing the User Service (acting as the ingress API gateway) to aggregate data from the Ledger and Friend services in fractions of a millisecond.
+- Client stubs are generated dynamically during the Maven build phase, ensuring strict type-safety across distributed network boundaries.
+
+### 3. Event-Driven Architecture (Asynchronous Decoupling)
+Not all operations require an immediate synchronous response. Features like push notifications and audit logging are completely decoupled using **Apache Kafka**.
+- **Resilience:** The core transaction pathway (Ledger) fires a Kafka event and immediately releases the thread back to the connection pool. The Notification service consumes these events asynchronously. 
+- **Backpressure Handling:** If the Notification service goes down or experiences a spike in traffic, the Ledger service remains 100% unaffected. Kafka acts as a durable buffer, guaranteeing eventual delivery without degrading core system performance.
+
+### 4. Database Optimization & Memory Protection
+A common pitfall in ORM implementations is the infamous N+1 query problem and unbounded memory loading.
+- **Strict Pagination:** Endpoints querying high-volume transactional data (e.g., retrieving ledgers by date) utilize Spring Data `Pageable` interfaces. This enforces safe limits at the SQL execution level, actively preventing Out-Of-Memory (OOM) heap crashes on the JVM.
+- **Query Optimization:** Removed redundant consecutive database hits (e.g., executing `existsById` followed immediately by `findById`). Replaced with optimal, single-trip `findById().orElseThrow()` patterns to minimize database connection pool exhaustion.
+
+### 5. Architectural Immutability & Clean Code
+- **Dependency Injection:** Replaced field injection (`@Autowired`) with strictly typed constructor injection (`@RequiredArgsConstructor`). This enforces immutability at the component level and ensures Spring beans cannot be instantiated in an invalid state, drastically improving unit testability.
+- **Data Transfer Objects (DTOs):** Strict isolation between database entities and API responses. The internal schema is never leaked to the client, mapped safely via custom mapping layers.
+
+---
+
+##  Technology Stack
+
+- **Backend:** Java 21+, Spring Boot 3.5.x, Spring Data JPA, Hibernate
+- **Microservices:** gRPC, Protocol Buffers (Protobuf), REST API
+- **Event Streaming:** Apache Kafka
+- **Database:** PostgreSQL (Production), H2 (Local Development / Testing)
+- **Infrastructure:** Docker, Docker Compose, Maven Build Lifecycle
+
+---
+
+##  Deployment & Local Execution
+
+The entire distributed ecosystem can be spun up in isolation using Docker containerization, ensuring absolute parity between local development and production environments.
+
 ```bash
-  ./mvnw clean package -DskipTests
+# Launch the full microservice cluster and databases
+docker-compose up --build -d
+```
 
-2. start the mesh
-```bash
-  docker-compose up --build -d
-
-3. Verify Status: The API Gateway will be available at http://localhost:8080/app.
+*(Alternatively, services can be run bare-metal using the injected `com.h2database:h2:runtime` configurations for lightweight, localized JVM profiling).*

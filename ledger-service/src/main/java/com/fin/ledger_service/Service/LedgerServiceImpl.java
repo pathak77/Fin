@@ -56,13 +56,8 @@ public class LedgerServiceImpl implements LedgerService {
     @Transactional
     public LedgerSummaryDto updateTransactionStatus(LedgerRequestDto request) {
 
-        Boolean exists = ledgerRepository.existsByLedgerId(request.getLedgerId());
-
-        if(!exists) {
-            throw new DoesNotExistException("this transaction doesn't exist");
-        }
-
-        Ledger ledger = ledgerRepository.findByLedgerId(request.getLedgerId());
+        Ledger ledger = ledgerRepository.findById(request.getLedgerId())
+                .orElseThrow(() -> new DoesNotExistException("this transaction doesn't exist"));
 
         if (request.getStatus() != null) {
             ledger.setStatus(request.getStatus());
@@ -93,29 +88,29 @@ public class LedgerServiceImpl implements LedgerService {
 
 
     @Override
-    public List<LedgerSummaryDto> getTransactionByReceiverId(LedgerRequestDto request) {
+    public List<LedgerSummaryDto> getTransactionByReceiverId(LedgerRequestDto request, int page, int size, String sortBy, boolean ascending) {
 
-        if(request.getGiverId() == null ||
-        request.getReceiverId() == null ) {
+        if(request.getReceiverId() == null ) {
             throw new IllegalArgumentException("your Id is null");
         }
 
-
-        Long giverId = request.getGiverId();
         Long receiverId = request.getReceiverId();
 
-        return ledgerRepository.findByGiverIdAndReceiverId( giverId, receiverId )
+        Sort sort = ascending ? Sort.by(Sort.Direction.ASC, sortBy) : Sort.by(Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Ledger> ledgerPage = ledgerRepository.findByReceiverId(receiverId, pageable);
+
+        return ledgerPage.getContent()
                 .stream()
                 .map(ledgerMapper::mapToSummaryDto)
                 .collect(Collectors.toList());
-
-
     }
 
 
 
     @Override
-    public List<LedgerSummaryDto> getTransactionByDate(LedgerRequestDto request) {
+    public List<LedgerSummaryDto> getTransactionByDate(LedgerRequestDto request, int page, int size, String sortBy, boolean ascending) {
 
         LocalDate date = request.getTransactionDate();
 
@@ -123,9 +118,12 @@ public class LedgerServiceImpl implements LedgerService {
             throw new IllegalArgumentException("your Date is null");
         }
 
-        List<Ledger> ledgers = ledgerRepository.findByCreatedAt(date);
+        Sort sort = ascending ? Sort.by(Sort.Direction.ASC, sortBy) : Sort.by(Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        return ledgers
+        Page<Ledger> ledgerPage = ledgerRepository.findByCreatedAt(date, pageable);
+
+        return ledgerPage.getContent()
                 .stream()
                 .map(ledgerMapper::mapToSummaryDto)
                 .collect(Collectors.toList());

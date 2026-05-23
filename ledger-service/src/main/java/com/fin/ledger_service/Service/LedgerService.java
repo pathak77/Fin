@@ -17,9 +17,9 @@ public interface LedgerService {
 
     List<LedgerSummaryDto> getTransactionByGiver(LedgerRequestDto request, int page, int size, String sortBy, boolean ascending);
 
-    List<LedgerSummaryDto> getTransactionByReceiverId(LedgerRequestDto request);
+    List<LedgerSummaryDto> getTransactionByReceiverId(LedgerRequestDto request, int page, int size, String sortBy, boolean ascending);
 
-    List<LedgerSummaryDto> getTransactionByDate(LedgerRequestDto request);
+    List<LedgerSummaryDto> getTransactionByDate(LedgerRequestDto request, int page, int size, String sortBy, boolean ascending);
 
     List<LedgerSummaryDto> getTransactionByStatus(LedgerRequestDto ledgerRequestDto, int page, int size, String sortBy, boolean ascending);
 
