@@ -1,0 +1,57 @@
+
+# 1. THE DEPLOYMENT (Manages the Pods)
+apiVersion: app/v1
+kind: Deployment
+metadata:
+  name: springboot-app-deployment
+spec:
+  replicas: 2 
+  selector:
+    matchLabels:
+      app: springboot-app
+  template:
+    metadata:
+      labels:
+        app: springboot-app
+    spec:
+      containers:
+      - name: springboot-container
+        image: yourdockerhub/your-app:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+
+---
+# 2. THE SERVICE (Internal Load Balancer)
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-app-service
+spec:
+  type: ClusterIP
+  selector:
+    app: springboot-app
+  ports:
+  - port: 80        
+    targetPort: 8080  
+
+---
+# 3. THE INGRESS (Nginx Reverse Proxy routing external traffic)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: springboot-app-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: my-app.local 
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: springboot-app-service
+            port:
+              number: 80
